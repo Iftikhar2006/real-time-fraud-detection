@@ -1,0 +1,52 @@
+# Python
+__pycache__/
+*.py[cod]
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Data
+data/raw/
+data/processed/
+
+# Trained models
+models/*.pkl
+models/*.joblib
+
+# Jupyter
+.ipynb_checkpoints/
+
+# VS Code
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+# Local environment and secrets
+.env*
+!.env.example
+
+# Runtime state and logs
+.runtime/
+logs/
+
+# Local backups and generated archives
+backups/
+*.zip
+*.zip*
+
+# Local source backups and temporary test artifacts
+*.backup*
+*.before_*
+*.pre_*
+*_backup.py
+*_pre_*.py
+results/write_test.txt
+
+# Include the project model required for inference
+!models/lightgbm_fraud_model.joblib
+
+# Exclude obsolete source snapshots and temporary results
+results/ieee_flink_source.txt
