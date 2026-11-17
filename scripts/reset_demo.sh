@@ -65,8 +65,8 @@ if [[ "$KAFKA_CMD" != *"kafka.Kafka"* ||
 fi
 
 # If Flink REST is reachable, ensure no active jobs remain.
-if curl --silent --fail http://localhost:8081/overview >/dev/null; then
-    JOBS_JSON=$(curl --silent --fail http://localhost:8081/jobs/overview) || {
+if curl --silent --fail --connect-timeout 2 --max-time 5 http://localhost:8081/overview >/dev/null; then
+    JOBS_JSON=$(curl --silent --fail --connect-timeout 2 --max-time 5 http://localhost:8081/jobs/overview) || {
         echo "ERROR: Could not inspect Flink jobs."
         exit 1
     }
@@ -97,9 +97,9 @@ elif ss -ltn | grep -qE ':(8081)\b'; then
 fi
 
 TOPICS="$KAFKA/bin/kafka-topics.sh"
-GROUPS="$KAFKA/bin/kafka-consumer-groups.sh"
+CONSUMER_GROUPS="$KAFKA/bin/kafka-consumer-groups.sh"
 
-for path in "$TOPICS" "$GROUPS"; do
+for path in "$TOPICS" "$CONSUMER_GROUPS"; do
     [[ -x "$path" ]] || {
         echo "ERROR: Kafka utility missing: $path"
         exit 1
@@ -152,18 +152,18 @@ if [[ "$CONFIRM" != "RESET DEMO" ]]; then
 fi
 
 # Delete only the demo consumer group.
-if "$GROUPS" --bootstrap-server "$KAFKA_BOOTSTRAP_SERVERS" \
+if "$CONSUMER_GROUPS" --bootstrap-server "$KAFKA_BOOTSTRAP_SERVERS" \
     --list | grep -Fxq "$KAFKA_GROUP_ID"; then
 
     echo "Deleting demo consumer group..."
 
-    "$GROUPS" --bootstrap-server "$KAFKA_BOOTSTRAP_SERVERS" \
+    "$CONSUMER_GROUPS" --bootstrap-server "$KAFKA_BOOTSTRAP_SERVERS" \
         --delete --group "$KAFKA_GROUP_ID"
 
     GROUP_DELETED=0
 
     for i in {1..30}; do
-        if ! "$GROUPS" --bootstrap-server "$KAFKA_BOOTSTRAP_SERVERS" \
+        if ! "$CONSUMER_GROUPS" --bootstrap-server "$KAFKA_BOOTSTRAP_SERVERS" \
             --list | grep -Fxq "$KAFKA_GROUP_ID"; then
             GROUP_DELETED=1
             break
